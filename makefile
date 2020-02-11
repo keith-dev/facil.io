@@ -128,7 +128,6 @@ endif
 # OS Specific Settings (debugger, disassembler, etc')
 #############################################################################
 
-
 ifneq ($(OS),Windows_NT)
 	OS := $(shell uname)
 else
@@ -207,7 +206,6 @@ EMPTY:=
 
 FIO_POLL_TEST_KQUEUE := "\\n\
 \#define _GNU_SOURCE\\n\
-\#include <stdlib.h>\\n\
 \#include <sys/event.h>\\n\
 int main(void) {\\n\
 	int fd = kqueue();\\n\
@@ -216,8 +214,6 @@ int main(void) {\\n\
 
 FIO_POLL_TEST_EPOLL := "\\n\
 \#define _GNU_SOURCE\\n\
-\#include <stdlib.h>\\n\
-\#include <stdio.h>\\n\
 \#include <sys/types.h>\\n\
 \#include <sys/stat.h>\\n\
 \#include <fcntl.h>\\n\
@@ -273,7 +269,6 @@ endif
 FIO_SENDFILE_TEST_LINUX := "\\n\
 \#define _GNU_SOURCE\\n\
 \#include <stdlib.h>\\n\
-\#include <stdio.h>\\n\
 \#include <sys/sendfile.h>\\n\
 int main(void) {\\n\
 	off_t offset = 0;\\n\
@@ -285,7 +280,6 @@ int main(void) {\\n\
 FIO_SENDFILE_TEST_BSD := "\\n\
 \#define _GNU_SOURCE\\n\
 \#include <stdlib.h>\\n\
-\#include <stdio.h>\\n\
 \#include <sys/types.h>\\n\
 \#include <sys/socket.h>\\n\
 \#include <sys/uio.h>\\n\
@@ -300,7 +294,6 @@ int main(void) {\\n\
 FIO_SENDFILE_TEST_APPLE := "\\n\
 \#define _GNU_SOURCE\\n\
 \#include <stdlib.h>\\n\
-\#include <stdio.h>\\n\
 \#include <sys/types.h>\\n\
 \#include <sys/socket.h>\\n\
 \#include <sys/uio.h>\\n\
@@ -357,7 +350,7 @@ FIO_TEST_SOCKET_AND_NETWORK_SERVICE := "\\n\
 \#include <arpa/inet.h>\\n\
 int main(void) {\\n\
 	struct sockaddr_in addr = { .sin_port = 0 };\\n\
-	int fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);\\n\
+	int fd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);\\n\
 	if(fd == -1) return 1;\\n\
 	if(inet_pton(AF_INET, \"127.0.0.1\", &addr.sin_addr) < 1) return 1;\\n\
 	return connect(fd, (struct sockaddr *)&addr, sizeof addr) < 0 ? 1 : 0;\\n\
@@ -418,7 +411,6 @@ int main(void) { \\n\
   SSL_set0_wbio(ssl, bio); \\n\
 }\\n\
 "
-
 
 # automatic library adjustments for possible BearSSL library
 LIB_PRIVATE_SUBFOLDERS:=$(LIB_PRIVATE_SUBFOLDERS) $(if $(wildcard lib/bearssl),bearssl)
@@ -517,7 +509,6 @@ CPPFLAGS:= $(CPPFLAGS) -std=$(CPPSTD) -fpic  $(FLAGS_STR) $(WARNINGS) $(OPTIMIZA
 LINKER_FLAGS= $(LDFLAGS) $(foreach lib,$(LINKER_LIBS),$(addprefix -l,$(lib))) $(foreach lib,$(LINKER_LIBS_EXT),$(addprefix -l,$(lib)))
 CFLAGS_DEPENDENCY=-MT $@ -MMD -MP
 
-
 # Build a "Requires:" string for the pkgconfig/facil.pc file
 # unfortunately, leading or trailing commas are interpreted as
 # "empty package name" by pkg-config, therefore we work around this by using
@@ -560,7 +551,6 @@ $(DEST)/libfacil.so: $(LIB_OBJS) | $(DEST)/pkgconfig/facil.pc
 lib_build: $(DEST)/libfacil.so
 	@$(DOCUMENTATION)
 
-
 %.o : %.c
 
 #### no disassembler (normal / expected state)
@@ -600,7 +590,6 @@ $(TMP_ROOT)/%.d: ;
 #############################################################################
 # Tasks - Testing
 #############################################################################
-
 
 .PHONY : test
 test: | clean
@@ -648,7 +637,6 @@ test_add_speed_flags:
 	$(eval CFLAGS:=$(CFLAGS) -DDEBUG=1)
 	$(eval LINKER_FLAGS:=-DDEBUG=1 $(LINKER_FLAGS))
 
-
 .PHONY : test/build
 test/build: $(LIB_OBJS)
 	@$(CC) -c ./tests/tests.c -o $(TMP_ROOT)/tests.o $(CFLAGS_DEPENDENCY) $(CFLAGS)
@@ -669,11 +657,9 @@ db: | clean
 	DEBUG=1 $(MAKE) build
 	$(DB) $(BIN)
 
-
 .PHONY : create_tree
 create_tree:
 	-@mkdir -p $(BUILDTREE) 2> /dev/null
-
 
 #############################################################################
 # Tasks - Installers
@@ -698,7 +684,6 @@ remove/bearssl:
 	-@echo "* Removing existing BearSSL source files."
 	-@rm -R -f lib/bearssl 2> /dev/null || echo "" >> /dev/null
 	-@make clean
-
 
 #############################################################################
 # Tasks - library code dumping & CMake
@@ -814,5 +799,4 @@ vars:
 	@echo "LINKER_LIBS_EXT: $(LINKER_LIBS_EXT)"
 	@echo ""
 	@echo "LINKER_FLAGS: $(LINKER_FLAGS)"
-
 
